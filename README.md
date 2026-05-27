@@ -1,79 +1,245 @@
-# Paris Metro Map
+# 🚇 Paris Metro Map
 
-## Giới thiệu
-Đây là một dự án đầy tâm huyết của tác giả giúp giải quyết vấn đề tìm đường đi trong mạng lưới metro dày đặc của Paris (hơn 300 ga), phục vụ cho bà con nhân dân có trải nghiệm đi học và đi làm thuận tiện nhất.
+Interactive web application for exploring the Paris Metro system. Features include viewing metro lines, stations, segments, and finding the shortest path between two points using the A* algorithm with transfer penalty support.
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Quick Start with Docker](#-quick-start-with-docker)
+- [Manual Setup (Without Docker)](#-manual-setup-without-docker)
+- [Usage Guide](#-usage-guide)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [API Endpoints](#-api-endpoints)
 
 ---
 
-## Tech Stack
-* **Frontend:** HTML, JavaScript, Tailwind CSS, Leaflet.js
-* **Backend:** FastAPI, Motor
-* **Database:** MongoDB 
+## ✨ Features
+
+- **Interactive Map** — View all 16 Paris Metro lines on an interactive map
+- **Pathfinding** — Find the shortest path between any two stations or map coordinates using A* algorithm
+- **Transfer Penalty** — Adjust transfer penalty to prefer routes with fewer line changes
+- **Line Management** — View and toggle active/inactive status for entire lines
+- **Station Management** — Search, filter, and toggle individual stations
+- **Segment Management** — Browse, filter by line, and toggle individual segments
+- **Accent-insensitive Search** — Type "Chatelet" to find "Châtelet"
 
 ---
 
-## Hướng dẫn sử dụng
+## 🐳 Quick Start with Docker
 
-### Cài đặt Database
-* Cài đặt **MongoDB** và tạo database của bạn.
+> **This is the easiest way to run the project. You only need Docker installed — no Python, no MongoDB, no manual setup required.**
 
-### Cấu hình biến môi trường
-- Tìm file `.env.example` trong thư mục **backend**.
-- Đổi tên thành `.env`.
-- Chỉnh sửa các biến môi trường bên trong cho phù hợp với cấu hình MongoDB của bạn.
-> **Lưu ý:** Nếu bạn không thiết lập `MONGO_USER` và `MONGO_PASSWORD` cho database local, hãy comment hai dòng đó lại.
+### Step 1: Install Docker
 
-### Thiết lập Backend
-Mở folder **backend**, thực hiện các bước sau trong Terminal:
+Download and install **Docker Desktop** for your operating system:
+
+| OS | Download Link |
+|---|---|
+| **Windows** | [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) |
+| **macOS** | [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop/) |
+| **Linux** | [Docker Engine for Linux](https://docs.docker.com/engine/install/) |
+
+> **Windows users**: During installation, make sure **WSL 2** is enabled when prompted.
+
+After installing, **open Docker Desktop** and make sure it's running (you'll see the Docker icon in your system tray/taskbar).
+
+### Step 2: Download the project
+
+**Option A — Using Git** (if you have Git installed):
 
 ```bash
-# Khởi tạo môi trường ảo
-python -m venv .venv
+git clone https://github.com/Tuanducbu1/paris-metro-map.git
+cd paris-metro-map
+```
 
-# Kích hoạt môi trường ảo
-# Trên Windows:
-.venv\Scripts\activate
-# Trên Linux/macOS:
-source .venv/bin/activate
+**Option B — Download ZIP** (if you don't have Git):
 
-# Cài đặt các thư viện cần thiết
-pip install -r requirements.txt
+1. Go to [https://github.com/Tuanducbu1/paris-metro-map](https://github.com/Tuanducbu1/paris-metro-map)
+2. Click the green **"Code"** button → **"Download ZIP"**
+3. Extract the ZIP file
+4. Open a terminal/command prompt and navigate to the extracted folder:
+   ```bash
+   cd path/to/paris-metro-map
+   ```
 
-# Khởi chạy server development
-fastapi dev app/main.py
+### Step 3: Start the application
+
+Run this single command in the project folder:
+
+```bash
+docker compose up --build
+```
+
+> ⏳ **The first run** will take a few minutes to download images and build containers. Subsequent runs will be much faster.
+
+Wait until you see output similar to:
+
+```
+paris-metro-frontend  | ... start worker process ...
+paris-metro-backend   | ... Application startup complete.
+```
+
+### Step 4: Open the application
+
+Open your web browser and go to:
+
+👉 **[http://localhost:5500](http://localhost:5500)**
+
+> **That's it!** The application should be fully functional with the map loaded.
+
+### Stopping the application
+
+Press `Ctrl + C` in the terminal where Docker is running, then:
+
+```bash
+docker compose down
+```
+
+To also remove the database data (start fresh next time):
+
+```bash
+docker compose down -v
 ```
 
 ---
 
-### Test API và sử dụng
+## 🔧 Manual Setup (Without Docker)
 
-* **API:** Sau khi chạy backend thành công, bạn có thể truy cập tài liệu API tự động tại:  
-    [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+If you prefer to run the project without Docker, follow these steps.
 
-* **Frontend:**
-    - Mở folder **frontend** trong cửa sổ mới bằng VSCode (không tắt cửa sổ **backend**).
-    - Click chuột phải vào file `index.html` và chọn **Open with Live Server** (Yêu cầu đã cài đặt Extension *Live Server*).
-    - Truy cập bản đồ tại:  
-    [http://localhost:5500](http://localhost:5500)
-       
+### Prerequisites
+
+- **Python 3.12+** — [Download](https://www.python.org/downloads/)
+- **MongoDB 7+** — [Download](https://www.mongodb.com/try/download/community)
+- A modern web browser (Chrome, Firefox, Edge)
+
+### Step 1: Start MongoDB
+
+Make sure MongoDB is running on your machine (default port `27017`).
+
+### Step 2: Setup Backend
+
+```bash
+cd backend
+
+# Create and activate virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+# macOS/Linux
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create environment file
+echo MONGO_HOST=localhost > .env
+echo MONGO_PORT=27017 >> .env
+echo MONGO_DB_NAME=paris_metro_map >> .env
+
+# Start the server
+fastapi dev app/main.py
+```
+
+The backend will be available at `http://127.0.0.1:8000`.
+
+### Step 3: Open Frontend
+
+Open `frontend/index.html` in your browser, or use a local server:
+
+```bash
+# Using Python
+cd frontend
+python -m http.server 5500
+
+# Or use VS Code Live Server extension (set port to 5500)
+```
+
+The frontend will be available at `http://localhost:5500`.
+
 ---
 
-## Thuật toán
+## 📖 Usage Guide
 
-Điểm đặc biệt của thuật toán nằm ở tham số **Penalty**.
-Trong khi thuật toán $A^*$ truyền thống chỉ tập trung vào việc cực tiểu hóa hàm chi phí $f(n)$ dựa trên khoảng cách:
+### Pathfinding
 
-$$f(n) = g(n) + h(n)$$
+1. Click the **"Path"** tab in the sidebar
+2. Click the **"From"** input field, then click a station on the map (or type to search)
+3. Click the **"To"** input field, then click another station
+4. Adjust the **Transfer Penalty** slider (0 = shortest distance, higher = fewer transfers)
+5. Click **"Find"** to calculate the route
+6. The route will be displayed on the map with step-by-step directions
 
-Thuật toán này áp dụng thêm hệ số **Penalty** cộng trực tiếp vào $g(n)$ cho mỗi lần chuyển tuyến.
-* **Với Penalty = 0:** Thuật toán hoạt động như $A^*$ thuần túy, tìm đường ngắn nhất tuyệt đối về mặt địa lý.
-* **Với Penalty > 0 (ví dụ: 2000m):** Thuật toán sẽ tính toán để giảm số lần đổi tàu xuống. Hệ thống sẽ chỉ yêu cầu bạn chuyển tuyến nếu việc việc tiết kiệm quãng đường từ tuyến mới lớn hơn **Penalty** phát sinh do việc đổi tàu đó. Điều này giống như bạn đang nói với máy tính rằng: "Tôi chọn ngồi yên trên tàu và đi xa thêm *1.99km* còn hơn là phải đứng dậy chuyển tuyến 1 lần"
+### Viewing Lines
+
+1. Click the **"Lines"** tab to see all 16 metro lines
+2. Click a line to zoom to it on the map
+3. Use the toggle switch to activate/deactivate entire lines
+
+### Managing Stations & Segments
+
+1. Use the **"Stations"** and **"Segments"** tabs to browse the network
+2. Search by name or ID, filter by status (Active/Inactive) or line
+3. Click any item to zoom to it on the map
+4. Toggle individual stations or segments on/off
 
 ---
 
-## Demo
-<img width="1920" height="1080" alt="default" src="https://github.com/user-attachments/assets/7aedadff-0ec1-4cba-ba77-2dea082ae7fd" />
-<img width="1920" height="1080" alt="find" src="https://github.com/user-attachments/assets/f8f2e2e4-9b45-467c-9057-f42c023e7aec" />
-<img width="1920" height="1080" alt="lines" src="https://github.com/user-attachments/assets/68f062a2-3095-4da5-9817-afbe905af179" />
-<img width="1920" height="1080" alt="segments" src="https://github.com/user-attachments/assets/f614e17c-3743-41cb-a604-31b3b5ed94d3" />
-<img width="1920" height="1080" alt="stations" src="https://github.com/user-attachments/assets/7727e286-db83-4841-9150-a8cc5be4cc62" />
+## 🛠 Tech Stack
+
+| Component | Technology |
+|---|---|
+| **Frontend** | HTML, CSS, JavaScript, [Leaflet.js](https://leafletjs.com/), [Tailwind CSS](https://tailwindcss.com/) |
+| **Backend** | [FastAPI](https://fastapi.tiangolo.com/) (Python) |
+| **Database** | [MongoDB](https://www.mongodb.com/) with [Motor](https://motor.readthedocs.io/) (async driver) |
+| **Map Tiles** | [CARTO Voyager](https://carto.com/basemaps/) |
+| **Containerization** | [Docker](https://www.docker.com/) |
+
+---
+
+## 📁 Project Structure
+
+```
+paris-metro-map/
+├── docker-compose.yml          # Docker orchestration
+├── backend/
+│   ├── Dockerfile              # Backend container config
+│   ├── requirements.txt        # Python dependencies
+│   ├── .env                    # Environment variables (not in repo)
+│   └── app/
+│       ├── main.py             # FastAPI entry point + CORS
+│       ├── api/                # API route definitions
+│       ├── core/               # Config & database connection
+│       ├── crud/               # Database operations
+│       ├── data/               # GeoJSON data (nodes & edges)
+│       ├── schemas/            # Pydantic models
+│       └── services/           # A* pathfinding algorithm
+├── frontend/
+│   ├── Dockerfile              # Frontend container config
+│   ├── nginx.conf              # Nginx server config
+│   ├── index.html              # Main HTML page
+│   ├── css/style.css           # Custom styles
+│   └── js/app.js               # Application logic
+└── README.md
+```
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/nodes/` | Get all stations |
+| `GET` | `/api/edges/` | Get all segments |
+| `PATCH` | `/api/nodes/{id}` | Toggle station active status |
+| `PATCH` | `/api/edges/{id}` | Toggle segment active status |
+| `PATCH` | `/api/lines/{line}` | Toggle entire line active status |
+| `GET` | `/api/path/` | Find shortest path (params: `lon1`, `lat1`, `lon2`, `lat2`, `penalty`) |
+
+---
+
+## 📄 License
+
+This project is for educational purposes.
